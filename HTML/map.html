@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Preference Map with Routing</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.css"
+    />
+    <style>
+      body,
+      html {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+      }
+      #map {
+        height: 70%;
+        width: 100%;
+      }
+      #controls {
+        padding: 10px;
+        background-color: #f0f0f0;
+      }
+      #hotspotSelect,
+      #manualLocationBtn,
+      #goButton {
+        margin-right: 10px;
+      }
+      #manualLocationInput {
+        display: none;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="controls">
+      <button id="manualLocationBtn">Enter Location Manually</button>
+      <div id="manualLocationInput">
+        <input type="text" id="latInput" placeholder="Latitude" />
+        <input type="text" id="lonInput" placeholder="Longitude" />
+        <button id="setLocationBtn">Set Location</button>
+      </div>
+      <select id="hotspotSelect"></select>
+      <button id="goButton">Go</button>
+    </div>
+    <div id="map"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.js"></script>
+    <script>
+      // Simulated user preferences
+      const userPreferences = {
+        interests: ["restaurants", "caves", "mountains", "leisure"],
+      };
+
+      // Hotspot locations based on interests
+      const hotspots = {
+        restaurants: { name: "Er Nai Xiang", lat: 4.596365, lon: 101.077767 },
+        caves: { name: "Kek Lok Tong", lat: 4.558715, lon: 101.129478 },
+        mountains: { name: "Gunung Lang", lat: 4.620515, lon: 101.0859 },
+        leisure: { name: "Tasik Cermin", lat: 4.558915, lon: 101.118344 },
+      };
+
+      let map, userMarker, routingControl;
+      let currentLocation = null;
+
+      function initMap() {
+        map = L.map("map").setView([40.7128, -74.006], 13);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "© OpenStreetMap contributors",
+        }).addTo(map);
+
+        getUserLocation();
+        setupHotspotSelect();
+        setupGoButton();
+        setupManualLocationInput();
+      }
+
+      function getUserLocation() {
+        if ("geolocation" in navigator) {
+          navigator.geolocation.getCurrentPosition(
+            function (position) {
+              currentLocation = {
+                lat: position.coords.latitude,
+                lon: position.coords.longitude,
+              };
+              updateUserLocation();
+            },
+            function (error) {
+              console.error("Error getting location:", error);
+              alert("Unable to get your location. You can enter it manually.");
+              currentLocation = { lat: 4.6005, lon: 101.0758 }; // Default to Ipoh
+              updateUserLocation();
+            }
+          );
+        } else {
+          alert(
+            "Geolocation is not supported by your browser. You can enter your location manually."
+          );
+          currentLocation = { lat: 4.6005, lon: 101.0758 }; // Default to Ipoh
+          updateUserLocation();
+        }
+      }
+
+      function updateUserLocation() {
+        if (userMarker) {
+          map.removeLayer(userMarker);
+        }
+        userMarker = L.marker([currentLocation.lat, currentLocation.lon])
+          .addTo(map)
+          .bindPopup("Your Location")
+          .openPopup();
+        map.setView([currentLocation.lat, currentLocation.lon], 13);
+        addHotspotMarkers();
+      }
+
+      function addHotspotMarkers() {
+        userPreferences.interests.forEach((interest) => {
+          if (hotspots[interest]) {
+            const { lat, lon, name } = hotspots[interest];
+            L.marker([lat, lon]).addTo(map).bindPopup(name);
+          }
+        });
+      }
+
+      function setupHotspotSelect() {
+        const select = document.getElementById("hotspotSelect");
+        userPreferences.interests.forEach((interest) => {
+          if (hotspots[interest]) {
+            const option = document.createElement("option");
+            option.value = interest;
+            option.textContent = hotspots[interest].name;
+            select.appendChild(option);
+          }
+        });
+      }
+
+      function setupGoButton() {
+        document
+          .getElementById("goButton")
+          .addEventListener("click", function () {
+            const selectedInterest =
+              document.getElementById("hotspotSelect").value;
+            if (selectedInterest && currentLocation) {
+              const destination = hotspots[selectedInterest];
+              showRoute(currentLocation, destination);
+            }
+          });
+      }
+
+      function showRoute(start, end) {
+        if (routingControl) {
+          map.removeControl(routingControl);
+        }
+        routingControl = L.Routing.control({
+          waypoints: [
+            L.latLng(start.lat, start.lon),
+            L.latLng(end.lat, end.lon),
+          ],
+          routeWhileDragging: true,
+        }).addTo(map);
+      }
+
+      function setupManualLocationInput() {
+        const manualLocationBtn = document.getElementById("manualLocationBtn");
+        const manualLocationInput = document.getElementById(
+          "manualLocationInput"
+        );
+        const setLocationBtn = document.getElementById("setLocationBtn");
+
+        manualLocationBtn.addEventListener("click", function () {
+          manualLocationInput.style.display = "block";
+        });
+
+        setLocationBtn.addEventListener("click", function () {
+          const lat = parseFloat(document.getElementById("latInput").value);
+          const lon = parseFloat(document.getElementById("lonInput").value);
+          if (!isNaN(lat) && !isNaN(lon)) {
+            currentLocation = { lat, lon };
+            updateUserLocation();
+            manualLocationInput.style.display = "none";
+          } else {
+            alert("Please enter valid latitude and longitude values.");
+          }
+        });
+      }
+
+      window.onload = initMap;
+    </script>
+  </body>
+</html>

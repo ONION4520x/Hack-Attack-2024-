@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game idea</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
+      }
+
+      .button-container {
+        margin-bottom: 20px;
+      }
+
+      .button-container button {
+        margin: 10px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+
+      .upload-area {
+        display: none;
+        width: 300px;
+        height: 200px;
+        border: 2px dashed #ccc;
+        border-radius: 10px;
+        background-color: #fff;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-size: 16px;
+        color: #888;
+        margin-top: 20px;
+        flex-direction: column;
+      }
+
+      .upload-area.dragover {
+        border-color: #000;
+        color: #000;
+      }
+
+      .close-button {
+        margin-top: 20px;
+        padding: 5px 10px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="button-container">
+      <button id="camera-button">Camera</button>
+      <button id="qr-button">QR</button>
+      <button id="upload-button">Upload</button>
+    </div>
+    <div class="upload-area" id="upload-area">
+      <div>Drag and drop your image here or click to upload</div>
+      <button class="close-button" id="close-upload-area">Close</button>
+      <input type="file" id="file-input" style="display: none" />
+    </div>
+
+    <script>
+      const uploadButton = document.getElementById("upload-button");
+      const uploadArea = document.getElementById("upload-area");
+      const fileInput = document.getElementById("file-input");
+      const closeUploadAreaButton =
+        document.getElementById("close-upload-area");
+
+      const btn_camera = document.getElementById("camera-button");
+      const btn_qr = document.getElementById("qr-button");
+
+      uploadButton.addEventListener("click", () => {
+        uploadArea.style.display = "flex";
+      });
+
+      closeUploadAreaButton.addEventListener("click", () => {
+        event.stopPropagation();
+        uploadArea.style.display = "none";
+      });
+
+      uploadArea.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        uploadArea.classList.add("dragover");
+      });
+
+      uploadArea.addEventListener("dragleave", () => {
+        uploadArea.classList.remove("dragover");
+      });
+
+      uploadArea.addEventListener("drop", (event) => {
+        event.preventDefault();
+        uploadArea.classList.remove("dragover");
+        const files = event.dataTransfer.files;
+        handleFiles(files);
+      });
+
+      uploadArea.addEventListener("click", () => {
+        fileInput.click();
+      });
+
+      fileInput.addEventListener("change", (event) => {
+        const files = event.target.files;
+        handleFiles(files);
+      });
+
+      function handleFiles(files) {
+        if (files.length > 0) {
+          const file = files[0];
+          console.log("File uploaded:", file.name);
+          // Handle the uploaded file here (e.g., display the image, upload to server, etc.)
+          uploadArea.style.display = "none"; // Hide the upload area after uploading
+        }
+      }
+
+      btn_camera.addEventListener("click", (event) => {
+        window.location.href = "TakePicture.html";
+      });
+
+      btn_qr.addEventListener("click", (event) => {
+        window.location.href = "QR_scan.html";
+      });
+    </script>
+  </body>
+</html>
