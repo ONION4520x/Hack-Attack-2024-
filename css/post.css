@@ -1,0 +1,90 @@
+/* styles.css */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 19px;
+    line-height: 2em;
+    overflow-x: hidden;
+}
+
+.tm-comment-section {
+    max-width: 600px;
+    margin: 0 auto;
+    margin-top: 40px;
+    padding: 20px;
+    border: 1px solid #98b48a;
+    border-radius: 5px;
+    background-color: #e9eee6;
+}
+
+.tm-comment-section h2, .tm-comment-section h3 {
+    text-align: center;
+    color: #98b48a;
+}
+
+#tm-commentForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#tm-username, #tm-commentText {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.tm-rating {
+    display: flex;
+    align-items: center;
+}
+
+.tm-rating input[type="radio"] {
+    display: none;
+}
+
+.tm-rating label {
+    font-size: 2rem;
+    color: darkgreen;
+    cursor: pointer;
+}
+
+.tm-rating input[type="radio"]:checked ~ label {
+    color: #fff;
+}
+
+
+
+.tm-btn {
+    display: inline-block;
+    border-radius: 5px;
+    font-size: 1.3rem;
+    transition: all 0.3s ease;
+    background-color: #98b48a;
+    color: white;
+    padding: 8px 43px;
+    border: none;
+    cursor: pointer;
+}
+
+.tm-btn-primary:hover {
+    background-color: #74896a;
+}
+
+.tm-comment {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+.tm-comment h4 {
+    margin: 0;
+}
+
+.tm-comment p {
+    margin: 5px 0 10px 0;
+}
